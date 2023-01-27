@@ -75,8 +75,11 @@ def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
             else:
                 result.n_errors = error_counter
                 result.n_integrity_errors = integrity_counter
-                result.result = EBulkResult.INTEGRITY if integrity_counter > error_counter \
-                    else EBulkResult.ERROR if error_counter > integrity_counter else EBulkResult.UNKNOWN
+                if result.n_items//2 > integrity_counter:
+                    result.result = EBulkResult.INDEXED_INTEGRITY
+                else:
+                    result.result = EBulkResult.INTEGRITY if integrity_counter > error_counter \
+                        else EBulkResult.ERROR if error_counter > integrity_counter else EBulkResult.UNKNOWN
         else:
             result.result = EBulkResult.FATAL
             logger.error(f'Unexpected error procesing file {result.file.name}')

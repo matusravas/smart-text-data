@@ -9,6 +9,7 @@ EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 class EBulkResult(Enum):
     INDEXED = 'INDEXED'
     INTEGRITY = 'INTEGRITY'
+    INDEXED_INTEGRITY = 'INDEXED_INTEGRITY'
     ERROR = 'ERROR'
     UNKNOWN = 'UNKNOWN'
     FATAL = 'FATAL' # error in code. NEVER happens.
