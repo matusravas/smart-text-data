@@ -8,11 +8,20 @@ EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
 class EBulkResult(Enum):
     INDEXED = 'INDEXED'
+    INDEXED_UPDATE = 'INDEXED_UPDATE'
+    INDEXED_CONFLICTS = 'INDEXED_CONFLICTS'
+    UPDATED = 'UPDATED'
     INTEGRITY = 'INTEGRITY'
-    INDEXED_INTEGRITY = 'INDEXED_INTEGRITY'
-    ERROR = 'ERROR'
     UNKNOWN = 'UNKNOWN'
+    ERROR = 'ERROR'
     FATAL = 'FATAL' # error in code. NEVER happens.
+
+
+class EDocResult(Enum):
+    DOC_INDEXED = 'DOC_INDEXED'
+    DOC_UPDATED = 'DOC_UPDATED'
+    DOC_CONFLICT = 'DOC_CONFLICT'
+    DOC_ERROR = 'DOC_ERROR'
 
 
 class ESData():
@@ -31,7 +40,7 @@ class File():
 
 
 class BulkResultPartial():
-    def __init__(self, result: EBulkResult, _id: Union[str, None]) -> None:
+    def __init__(self, result: EDocResult, _id: Union[str, None]) -> None:
         self.result = result
         self._id = _id
 
@@ -44,7 +53,8 @@ class BulkResult():
         self.n_items = n_items
         self.items = items
         self.n_errors = None
-        self.n_integrity_errors = None
+        self.n_integrity_conflicts = None
+        self.n_indexed_updates = None
     
     def serialize(self):
         obj = {
@@ -56,8 +66,10 @@ class BulkResult():
         }
         if self.n_errors is not None:
             obj["n_errors"] = self.n_errors
-        if self.n_integrity_errors is not None:
-            obj["n_integrity_errors"] = self.n_integrity_errors
+        if self.n_integrity_conflicts is not None:
+            obj["n_conflicts"] = self.n_integrity_conflicts
+        if self.n_indexed_updates is not None:
+            obj["n_updates"] = self.n_indexed_updates
         return obj
         
 

@@ -56,6 +56,7 @@ es_headers['Authorization'] = es_auth_token
 WORK_DIR = app_config['export']['absolute_path']
 FILE_EXTENSIONS = tuple(app_config['export']['file_extensions'])
 ID_FIELD = app_config['export']['id_field']
+BULK_ACTION = app_config['export']['bulk_action']
 TIMESTAMP = dt.now().timestamp()
 
 asyncio.set_event_loop(asyncio.new_event_loop())

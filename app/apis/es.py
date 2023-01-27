@@ -2,9 +2,9 @@ import json
 import logging
 import aiohttp
 from typing import Union
-from app.model import ESData, BulkResult, EBulkResult, File, DataIndexer
-from app.utils.helpers import evaluate_bulk_results
+from app.model import ESData, BulkResult, File, DataIndexer
 from app.utils.decorators.es import use_multiple_es_hosts
+from .utils.helpers import parse_bulk_result
 
 logger = logging.getLogger(__name__)
 
@@ -43,11 +43,6 @@ async def bulk(es: ESData, bulk_data: str, file: File, n_items: int) -> BulkResu
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, data=bulk_data, ssl=es.ssl) as resp:
             data = await resp.json()
-            
-    if data and (('errors' in data and not data['errors']) and 'items' in data and len(data['items']) == n_items):
-        return BulkResult(file, EBulkResult.INDEXED, n_items)
-    
-    result = EBulkResult.ERROR if not ('items' in data and data['items'] and isinstance(data['items'], list))\
-        else EBulkResult.UNKNOWN
-    return BulkResult(file, result, n_items, items=evaluate_bulk_results(data['items']))
+    bulk_result = parse_bulk_result(data, file, n_items)
+    return bulk_result
         
