@@ -14,6 +14,6 @@ def evaluate_bulk_results(items: List[Dict]) -> Iterator[BulkResultPartial]:
     for item in items:
         obj = item.get('create', {})
         _id = obj.get('_id', None)
-        yield BulkResultPartial(EBulkResult.INDEXED, _id) if obj.get('status', None) == 200\
+        yield BulkResultPartial(EBulkResult.INDEXED, _id) if obj.get('status', None) == 201\
             else BulkResultPartial(EBulkResult.INTEGRITY, _id) if obj.get('status', None) == 409\
             else BulkResultPartial(EBulkResult.ERROR, _id) # 409 = integrity error, resource already exists

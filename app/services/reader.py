@@ -1,7 +1,7 @@
 import logging
 import os
 from typing import Generator, Iterator, List, Tuple
-
+from datetime import datetime as dt
 import pandas as pd
 
 from app import FILE_EXTENSIONS, WORK_DIR
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def scan_for_new_files() -> List[File] :
     files: List[File] = []
     timestamp = obtain_last_indexed_timestamp()
-    logger.info(f'Last indexed time: {timestamp}')
+    logger.info(f'Last indexed time: {timestamp if not timestamp else dt.fromtimestamp(timestamp).isoformat()}')
     
     for file_name in os.listdir(WORK_DIR):
         if not file_name.endswith(FILE_EXTENSIONS): continue

@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from typing import Coroutine, List, Union
-
+from datetime import datetime as dt
 from app import ID_FIELD, TIMESTAMP
 from app.apis.es import (bulk, get_last_indexed_timestamp,
                          post_last_indexed_timestamp)
@@ -38,7 +38,7 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
     files: List[File] = []
     for data, file in read_files():
         logger.info(file.path)
-        logger.info(file.ctime)
+        logger.info(dt.fromtimestamp(file.ctime).isoformat())
         files.append(file)
         rows = []
         for i, row in enumerate(data, start=1):

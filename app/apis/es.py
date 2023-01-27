@@ -32,7 +32,7 @@ async def post_last_indexed_timestamp(es: ESData, data_indexer: DataIndexer) -> 
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, json=body, ssl=es.ssl) as resp:
             data = await resp.json()
-    if data and 'status' in data and data['status'] == 'created':
+    if data and 'result' in data and data['result'] == 'created':
         return True
     return False
 
