@@ -100,7 +100,7 @@ def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
             if result.n_items//2 > conflict_counter:
                 result.result = EBulkResult.INDEXED_CONFLICTS
             else:
-                result.result = EBulkResult.INTEGRITY if conflict_counter > error_counter \
+                result.result = EBulkResult.CONFLICTED if conflict_counter > error_counter \
                     else EBulkResult.ERROR if error_counter > conflict_counter else EBulkResult.UNKNOWN
         else:
             result.result = EBulkResult.FATAL
