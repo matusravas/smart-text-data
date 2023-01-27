@@ -1,12 +1,15 @@
 import asyncio
-from ssl import SSLContext
-import ssl as ssl_module
-from typing import Union
-import yaml
-import os
 import logging.config
+import os
+import ssl as ssl_module
 from datetime import datetime as dt
+from ssl import SSLContext
+from typing import Union
+
+import yaml
 from dotenv import load_dotenv
+
+from app.model import BULK_ACTION
 
 # Loading environment
 load_dotenv('config/.env')
@@ -56,7 +59,11 @@ es_headers['Authorization'] = es_auth_token
 WORK_DIR = app_config['export']['absolute_path']
 FILE_EXTENSIONS = tuple(app_config['export']['file_extensions'])
 ID_FIELD = app_config['export']['id_field']
-BULK_ACTION = app_config['export']['bulk_action']
 TIMESTAMP = dt.now().timestamp()
+try:
+    ACTION: BULK_ACTION = [ba for ba in BULK_ACTION if ba.value == app_config['export']['bulk_action']][0]
+except:
+    ACTION: BULK_ACTION = BULK_ACTION.INDEX
+
 
 asyncio.set_event_loop(asyncio.new_event_loop())

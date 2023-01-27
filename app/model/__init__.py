@@ -6,19 +6,19 @@ from typing import Dict, Iterator, List, Optional, TypeVar, Union
 EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
 
+class BULK_ACTION(Enum):
+    INDEX = 'index'
+    CREATE = 'create'
+
 class EBulkResult(Enum):
     INDEXED = 'INDEXED'
-    INDEXED_UPDATE = 'INDEXED_UPDATE'
-    INDEXED_CONFLICTS = 'INDEXED_CONFLICTS'
-    UPDATED = 'UPDATED'
-    CONFLICTED = 'CONFLICTED'
     UNKNOWN = 'UNKNOWN'
     ERROR = 'ERROR'
-    FATAL = 'FATAL' # error in code. NEVER happens.
+    FATAL = 'FATAL' # error in code. should NEVER happen.
 
 
 class EDocResult(Enum):
-    DOC_INDEXED = 'DOC_INDEXED'
+    DOC_INSERTED = 'DOC_INSERTED'
     DOC_UPDATED = 'DOC_UPDATED'
     DOC_CONFLICT = 'DOC_CONFLICT'
     DOC_ERROR = 'DOC_ERROR'
@@ -52,24 +52,27 @@ class BulkResult():
         self.result = result
         self.n_items = n_items
         self.items = items
+        self.n_inserted = None
+        self.n_updated = None
+        self.n_conflicted = None
         self.n_errors = None
-        self.n_integrity_conflicts = None
-        self.n_indexed_updates = None
     
     def serialize(self):
         obj = {
             "file_name": self.file.name
             # ,"file_path": self.file.path
             ,"file_ctime": self.file.ctime
-            ,"result": self.result.value,
-            "n_items": self.n_items
+            ,"result": self.result.value
+            ,"n_items": self.n_items
         }
+        if self.n_inserted is not None:
+            obj["inserts"] = self.n_inserted
+        if self.n_updated is not None:
+            obj["updates"] = self.n_updated
+        if self.n_conflicted is not None:
+            obj["conflicts"] = self.n_conflicted
         if self.n_errors is not None:
-            obj["n_errors"] = self.n_errors
-        if self.n_integrity_conflicts is not None:
-            obj["n_conflicts"] = self.n_integrity_conflicts
-        if self.n_indexed_updates is not None:
-            obj["n_updates"] = self.n_indexed_updates
+            obj["errors"] = self.n_errors
         return obj
         
 
