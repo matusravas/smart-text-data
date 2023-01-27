@@ -36,6 +36,7 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
     for file in files:
         try:
             df = pd.read_excel(file.path)
+            df = df.rename(columns=lambda x: x.replace('.', '_'))
             df = df.applymap(parse_field)
             data = iter(df.to_dict(orient = 'records'))
             yield (data, file)
