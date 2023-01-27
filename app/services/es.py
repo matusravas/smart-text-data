@@ -56,12 +56,12 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
 def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
     # results MUST be sorted by file ctimes "asc" oldest should be last
     for result in results:
-        logger.info(f'{result.file.path}, result = {result.result.value}')
+        logger.info(f'File: {result.file.name}, result: {result.result.value}')
         if result.result == EBulkResult.INDEXED:
             pass
         elif result.result == EBulkResult.ERROR:
             #? send info mail
-            logger.error(f'Indexing whole file finished with error')
+            logger.error(f'Error indexing whole file: {result.file.name}')
         elif result.result == EBulkResult.UNKNOWN and result.items:
             error_counter = 0
             integrity_counter = 0
@@ -82,16 +82,16 @@ def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
                         else EBulkResult.ERROR if error_counter > integrity_counter else EBulkResult.UNKNOWN
         else:
             result.result = EBulkResult.FATAL
-            logger.error(f'Unexpected error procesing file {result.file.name}')
+            logger.error(f'Unexpected processing error. File: {result.file.name}')
 
     data_indexer = DataIndexer(TIMESTAMP, results)
-    logger.info('Data prepared to be indexed: ')
+    logger.info('Output data prepared to be indexed...')
     logger.info(data_indexer.serialize())
     status = __save_last_indexed_timestamp(data_indexer)
     if status:
-        logger.info('Data indexed successfully stored to elasticsearch')
+        logger.info('Output data indexed to elasticsearch')
     else:
-        logger.warning('Data not indexed to elasticsearch')
+        logger.error('Output data not indexed to elasticsearch')
         
     return status
      
