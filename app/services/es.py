@@ -46,7 +46,7 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
         for i, row in enumerate(data, start=1):
             _id = row.get(ID_FIELD, i)
             rows.append(json.dumps({ACTION.value: {'_id': _id}})) # use index instead of create to update existing docs
-            rows.append(json.dumps({'doc': row} if ACTION == BULK_ACTION.INDEX else row, ensure_ascii=False))
+            rows.append(json.dumps(row, ensure_ascii=False))
         bulk_data = '\n'.join(rows) + '\n'
         coroutines.append(bulk(bulk_data, file, i))
     
