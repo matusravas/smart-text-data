@@ -56,6 +56,6 @@ es_headers['Authorization'] = es_auth_token
 WORK_DIR = app_config['export']['absolute_path']
 FILE_EXTENSIONS = tuple(app_config['export']['file_extensions'])
 ID_FIELD = app_config['export']['id_field']
-INTEGRITY_THRESHOLD = app_config['export']['integrity_threshold']
+TIMESTAMP = dt.now().timestamp()
 
 asyncio.set_event_loop(asyncio.new_event_loop())

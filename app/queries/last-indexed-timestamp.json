@@ -1,4 +1,5 @@
 {
+    "_source": ["timestamp"],
     "size": 1,
-    "sort": {"timestamp": "asc"}
+    "sort": {"timestamp": "desc"}
 }

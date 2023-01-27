@@ -1,6 +1,5 @@
 import logging
 import os
-from datetime import datetime as dt
 from typing import Generator, Iterator, List, Tuple
 
 import pandas as pd
@@ -20,7 +19,7 @@ def scan_for_new_files() -> List[File] :
         if not file_name.endswith(FILE_EXTENSIONS): continue
         
         file_path = os.path.join(WORK_DIR, file_name)
-        file_ctime = dt.fromtimestamp(os.path.getctime(file_path))
+        file_ctime = os.path.getctime(file_path)
         
         if timestamp and file_ctime < timestamp: continue
         
@@ -35,7 +34,7 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
     files = scan_for_new_files()
     logger.info(f'Number of files to index: {len(files)}')
     for file in files:
-        df = pd.read_excel(file.path) #.to_dict('records')
+        df = pd.read_excel(file.path)
         df = df.applymap(parse_field)
         data = iter(df.to_dict(orient = 'records'))
         yield (data, file)
