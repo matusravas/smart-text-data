@@ -1,12 +1,12 @@
 import logging
 import os
-from typing import Generator, Iterator, List, Tuple
+from typing import Generator, Iterator, List, Tuple, Union
 from datetime import datetime as dt
 import pandas as pd
 
-from app import FILE_EXTENSIONS, WORK_DIR
-from app.model import File
-from app.utils.helpers import parse_field
+from app import FILE_EXTENSIONS, SOURCES_WITH_EXPECTED_COLUMNS, WORK_DIR
+from app.model import File, Source
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,15 +30,38 @@ def scan_for_new_files() -> List[File] :
     return files
 
 
+def get_df_with_source(file: File) -> Union[Tuple[pd.DataFrame, Source], Union[None, None]]:
+    df = pd.read_excel(file.path, header=None, dtype=object)
+    for source, item in SOURCES_WITH_EXPECTED_COLUMNS.items():
+        header_idx = item.get('header_idx')
+        expected_columns = item.get('columns')
+        try:
+            df_columns = df.iloc[header_idx].values
+        except IndexError:
+            continue
+        if all(expected_column in df_columns for expected_column in expected_columns): 
+            new_df = df.iloc[header_idx + 1:]
+            if source == Source.SAP_ANALYZER:
+                new_df.columns = [col.replace('.', '') for col in df_columns]
+            else: 
+                new_df.columns = [col.replace('.', '_') for col in df_columns]
+                
+            return new_df, source
+    return None, None
+
+
 def read_files() -> Generator[Tuple[Iterator, File], None, None]:
     files = scan_for_new_files()
     logger.info(f'Number of files to index: {len(files)}')
     for file in files:
         try:
-            df = pd.read_excel(file.path)
-            df = df.rename(columns=lambda x: x.replace('.', '_'))
-            df = df.applymap(parse_field)
-            data = iter(df.to_dict(orient = 'records'))
+            df, source = get_df_with_source(file)
+            if source is None or source.value.get('_id') is None:
+                logger.warning(f'File {file.name}, could not be identified as valid source file.')
+                continue
+            file.source = source
+            file.id_field = source.value.get('_id')
+            data = iter(df.to_dict(orient='records', ))
             yield (data, file)
         except Exception as e:
             logger.error(f'File {file.name} can not be read')

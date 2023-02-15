@@ -9,7 +9,7 @@ from typing import Union
 import yaml
 from dotenv import load_dotenv
 
-from app.model import BULK_ACTION
+from app.model import BULK_ACTION, Source
 
 # Loading environment
 load_dotenv('config/.env')
@@ -58,8 +58,12 @@ es_headers['Authorization'] = es_auth_token
 
 WORK_DIR = app_config['export']['absolute_path']
 FILE_EXTENSIONS = tuple(app_config['export']['file_extensions'])
-ID_FIELD = app_config['export']['id_field']
 TIMESTAMP = dt.now().timestamp()
+SOURCES_WITH_EXPECTED_COLUMNS = {
+        Source.SAP_ANALYZER: {'columns': ['Maintenance Order (Desc)', 'Employee', 'Company ID-EMP'], 'header_idx': 0}
+        ,Source.VAS: {'columns': ['Popis poruchy', 'VAS číslo', 'Ukončenie VAS'], 'header_idx': 5}
+        ,Source.SAP: {'columns': ['Kr.text', 'Zákazka'], 'header_idx': 0}
+}
 try:
     ACTION: BULK_ACTION = [ba for ba in BULK_ACTION if ba.value == app_config['export']['bulk_action']][0]
 except:

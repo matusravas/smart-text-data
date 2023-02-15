@@ -39,7 +39,7 @@ async def post_last_indexed_timestamp(es: ESData, data_indexer: DataIndexer) -> 
 
 @use_multiple_es_hosts
 async def bulk(es: ESData, bulk_data: str, file: File, n_items: int) -> BulkResult:
-    url = f'{es.url}/data/_bulk'
+    url = f'{es.url}/{file.source.value.get("index")}/_bulk'
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, data=bulk_data, ssl=es.ssl) as resp:
             data = await resp.json()

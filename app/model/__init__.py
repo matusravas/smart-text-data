@@ -32,11 +32,19 @@ class ESData():
         self.queries = 'app/queries/'
 
 
+class Source(Enum):
+    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'sap-analyzer', '_id': 'Maintenance Order'}
+    VAS = {'alias': 'VAS', 'index': 'vas', '_id': 'Údržbárska zákazka'}
+    SAP = {'alias': 'SAP', 'index': 'sap', '_id': 'Hlásenie'}
+    
+
 class File():
     def __init__(self, path: str, name: str, ctime: float) -> None:
         self.path = path
         self.name = name
         self.ctime = ctime
+        self.source: Source = None
+        self.id_field: str = None
 
 
 class BulkResultPartial():
@@ -61,6 +69,7 @@ class BulkResult():
         obj = {
             "file_name": self.file.name
             # ,"file_path": self.file.path
+            ,"source": self.file.source.value
             ,"file_ctime": self.file.ctime
             ,"result": self.result.value
             ,"n_items": self.n_items

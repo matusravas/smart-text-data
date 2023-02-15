@@ -4,12 +4,14 @@ import logging
 from datetime import datetime as dt
 from typing import Coroutine, List, Union
 
-from app import ACTION, BULK_ACTION, ID_FIELD, TIMESTAMP
+from app import ACTION, BULK_ACTION, TIMESTAMP
 from app.apis.es import (bulk, get_last_indexed_timestamp,
                          post_last_indexed_timestamp)
 from app.model import (BulkResult, DataIndexer, EBulkResult, EDocResult,
                        EventLoop, File)
 from app.utils.decorators.services import service
+from app.utils.helpers import normalize_row
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -37,16 +39,16 @@ def __save_last_indexed_timestamp(loop: EventLoop, data_indexer: DataIndexer) ->
 @service
 def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
     coroutines: List[Coroutine] = []
-    files: List[File] = []
     for data, file in read_files():
         logger.info(file.path)
         logger.info(dt.fromtimestamp(file.ctime).isoformat())
-        files.append(file)
         rows = []
         for i, row in enumerate(data, start=1):
-            _id = row.get(ID_FIELD, i)
+            _id = row.get(file.id_field, i)
+            if pd.isna(_id): continue
             rows.append(json.dumps({ACTION.value: {'_id': _id}})) # use index instead of create to update existing docs
-            rows.append(json.dumps(row, ensure_ascii=False))
+            normalized_row = normalize_row(row)
+            rows.append(json.dumps(normalized_row, ensure_ascii=False))
         bulk_data = '\n'.join(rows) + '\n'
         coroutines.append(bulk(bulk_data, file, i))
     
