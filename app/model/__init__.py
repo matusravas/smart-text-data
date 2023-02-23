@@ -1,7 +1,7 @@
 from asyncio import AbstractEventLoop, ProactorEventLoop
 from enum import Enum
 from ssl import SSLContext
-from typing import Dict, Iterator, List, Optional, TypeVar, Union
+from typing import Dict, Iterator, List, Optional, Union
 
 EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
@@ -33,9 +33,9 @@ class ESData():
 
 
 class Source(Enum):
-    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'sap-analyzer', '_id': 'Maintenance Order'}
-    VAS = {'alias': 'VAS', 'index': 'vas', '_id': 'Údržbárska zákazka'}
-    SAP = {'alias': 'SAP', 'index': 'sap', '_id': 'Hlásenie'}
+    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order'}
+    VAS = {'alias': 'VAS', 'index': 'st-vas', '_id': 'Údržbárska zákazka'}
+    SAP = {'alias': 'SAP', 'index': 'st-sap', '_id': 'Hlásenie'}
     
 
 class File():

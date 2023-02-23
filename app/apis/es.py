@@ -15,7 +15,7 @@ async def get_last_indexed_timestamp(es: ESData) -> Union[float, None]:
     with open(es.queries + body_file) as f:
         body = json.load(f)
 
-    url = f'{es.url}/data-indexer/_search'
+    url = f'{es.url}/st-data-indexer/_search'
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, json=body, ssl=es.ssl) as resp:
             data = await resp.json()
@@ -28,7 +28,7 @@ async def get_last_indexed_timestamp(es: ESData) -> Union[float, None]:
 @use_multiple_es_hosts
 async def post_last_indexed_timestamp(es: ESData, data_indexer: DataIndexer) -> bool:
     body = data_indexer.serialize()
-    url = f'{es.url}/data-indexer/_doc'
+    url = f'{es.url}/st-data-indexer/_doc'
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, json=body, ssl=es.ssl) as resp:
             data = await resp.json()
