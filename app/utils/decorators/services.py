@@ -20,6 +20,7 @@ def service(fn: Callable) -> Callable:
             traceback.print_exc()
             raise e
         finally:
-            logger.info('Event loop at {} finished after: {}'.format(fn.__name__, time.time() - begin))
+            pass
+            # logger.info('Event loop at {} finished after: {}'.format(fn.__name__, time.time() - begin))
         return result
     return wrapper

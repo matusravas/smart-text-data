@@ -91,8 +91,13 @@ def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
         else:
             result.result = EBulkResult.FATAL
             logger.error(f'Unexpected processing error. File: {result.file.name}')
-
+    
     data_indexer = DataIndexer(TIMESTAMP, results)
+    if not results: 
+        logger.info('No data to be indexed...')
+        logger.info(data_indexer.serialize())
+        return
+    
     logger.info('Output data prepared to be indexed...')
     logger.info(data_indexer.serialize())
     status = __save_last_indexed_timestamp(data_indexer)
