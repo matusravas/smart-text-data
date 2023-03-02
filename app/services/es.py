@@ -40,6 +40,7 @@ def __save_last_indexed_timestamp(loop: EventLoop, data_indexer: DataIndexer) ->
 def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
     coroutines: List[Coroutine] = []
     for data, file in read_files():
+        logger.info('Bulking data for file:')
         logger.info(file.path)
         logger.info(dt.fromtimestamp(file.ctime).isoformat())
         rows = []
@@ -58,7 +59,7 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
 
 
 def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
-    # results MUST be sorted by file ctimes "asc" oldest should be last
+    # results MUST be sorted by file creation times - ctimes "asc" oldest should be last
     for result in results:
         logger.info(f'File: {result.file.name}, result: {result.result.value}')
         if result.result in [EBulkResult.INDEXED, EBulkResult.UNKNOWN] and result.items:

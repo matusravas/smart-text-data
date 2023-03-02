@@ -36,7 +36,13 @@ class Source(Enum):
     SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order'}
     VAS = {'alias': 'VAS', 'index': 'st-vas', '_id': 'Údržbárska zákazka'}
     SAP = {'alias': 'SAP', 'index': 'st-sap', '_id': 'Hlásenie'}
-    
+
+
+SOURCES_EXPECTED_COLUMNS = {
+        Source.SAP_ANALYZER: {'columns': ['Maintenance Order (Desc)', 'Employee', 'Company ID-EMP'], 'header_idx': 0}
+        ,Source.VAS: {'columns': ['Popis poruchy', 'VAS číslo', 'Ukoncenie VAS'], 'header_idx': 0}
+        ,Source.SAP: {'columns': ['Kr.text', 'Zákazka'], 'header_idx': 0}
+}
 
 class File():
     def __init__(self, path: str, name: str, ctime: float) -> None:

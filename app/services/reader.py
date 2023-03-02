@@ -4,8 +4,8 @@ from typing import Generator, Iterator, List, Tuple, Union
 from datetime import datetime as dt
 import pandas as pd
 
-from app import FILE_EXTENSIONS, SOURCES_WITH_EXPECTED_COLUMNS, WORK_DIR
-from app.model import File, Source
+from app import FILE_EXTENSIONS, WORK_DIR
+from app.model import File, Source, SOURCES_EXPECTED_COLUMNS
 
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,9 @@ def scan_for_new_files() -> List[File] :
         
         file_path = os.path.join(WORK_DIR, file_name)
         file_ctime = os.path.getctime(file_path)
+        file_mtime = os.path.getmtime(file_path)
         
-        if timestamp and file_ctime < timestamp: continue
+        if timestamp and file_ctime < timestamp and file_mtime < timestamp: continue
         
         file = File(file_path, file_name, file_ctime)
         files.append(file)
@@ -32,7 +33,7 @@ def scan_for_new_files() -> List[File] :
 
 def get_df_with_source(file: File) -> Union[Tuple[pd.DataFrame, Source], Union[None, None]]:
     df = pd.read_excel(file.path, header=None, dtype=object)
-    for source, item in SOURCES_WITH_EXPECTED_COLUMNS.items():
+    for source, item in SOURCES_EXPECTED_COLUMNS.items():
         header_idx = item.get('header_idx')
         expected_columns = item.get('columns')
         try:
