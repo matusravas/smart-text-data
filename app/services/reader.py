@@ -5,7 +5,7 @@ from datetime import datetime as dt
 import pandas as pd
 
 from app import FILE_EXTENSIONS, WORK_DIR
-from app.model import File, Source, SOURCES_EXPECTED_COLUMNS
+from app.model import VALIDATOR_FIELD, File, Source, SOURCES_EXPECTED_COLUMNS
 
 
 logger = logging.getLogger(__name__)
@@ -62,6 +62,7 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
                 continue
             file.source = source
             file.id_field = source.value.get('_id')
+            file.row_validator = source.value.get(VALIDATOR_FIELD, None)
             data = iter(df.to_dict(orient='records', ))
             yield (data, file)
         except Exception as e:

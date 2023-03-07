@@ -1,7 +1,9 @@
 from asyncio import AbstractEventLoop, ProactorEventLoop
 from enum import Enum
 from ssl import SSLContext
-from typing import Dict, Iterator, List, Optional, Union
+from typing import Dict, Iterator, List, Optional, Union, Callable
+from .validators import sap_analyzer_validator
+
 
 EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
@@ -32,15 +34,17 @@ class ESData():
         self.queries = 'app/queries/'
 
 
+VALIDATOR_FIELD = 'validator'
+
 class Source(Enum):
-    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order'}
+    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order', VALIDATOR_FIELD: sap_analyzer_validator}
     VAS = {'alias': 'VAS', 'index': 'st-vas', '_id': 'Údržbárska zákazka'}
-    SAP = {'alias': 'SAP', 'index': 'st-sap', '_id': 'Hlásenie'}
+    SAP = {'alias': 'SAP', 'index': 'st-sap', '_id': 'Zákazka'}
 
 
 SOURCES_EXPECTED_COLUMNS = {
         Source.SAP_ANALYZER: {'columns': ['Maintenance Order (Desc)', 'Employee', 'Company ID-EMP'], 'header_idx': 0}
-        ,Source.VAS: {'columns': ['Popis poruchy', 'VAS číslo', 'Ukoncenie VAS'], 'header_idx': 0}
+        ,Source.VAS: {'columns': ['Popis poruchy', 'VAS číslo', 'Stroj'], 'header_idx': 0}
         ,Source.SAP: {'columns': ['Kr.text', 'Zákazka'], 'header_idx': 0}
 }
 
@@ -50,7 +54,8 @@ class File():
         self.name = name
         self.ctime = ctime
         self.source: Source = None
-        self.id_field: str = None
+        self.id_field: Union[None, str] = None
+        self.row_validator: Union[None, Callable[[Dict], bool]] = None
 
 
 class BulkResultPartial():
@@ -72,10 +77,12 @@ class BulkResult():
         self.n_errors = None
     
     def serialize(self):
+        source = self.file.source.value
+        source.pop(VALIDATOR_FIELD, None)
         obj = {
             "file_name": self.file.name
             # ,"file_path": self.file.path
-            ,"source": self.file.source.value
+            ,"source": source
             ,"file_ctime": self.file.ctime
             ,"result": self.result.value
             ,"n_items": self.n_items
