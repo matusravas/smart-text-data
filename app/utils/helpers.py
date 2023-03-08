@@ -11,13 +11,6 @@ def normalize_row(row: Dict):
             value = None
         elif isinstance(value, pd.Timestamp) or isinstance(value, dt): 
             value = value.isoformat()  
-        normalized_row[key] = value
+        normalized_row[' '.join(key.strip().split())] = value
     
     return normalized_row
-
-# def parse_field(field: Any):
-#     if pd.isnull(field) or pd.isna(field): 
-#         return None
-#     elif isinstance(field, pd.Timestamp) or isinstance(field, dt): 
-#         return field.isoformat()
-#     else: return field
