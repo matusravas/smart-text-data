@@ -35,6 +35,7 @@ class ESData():
 
 
 VALIDATOR_FIELD = 'validator'
+NULL_VALUES = ['#'] 
 
 class Source(Enum):
     SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order', VALIDATOR_FIELD: sap_analyzer_validator}
