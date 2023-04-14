@@ -43,10 +43,10 @@ cert_path = app_config_env.get('ssl', {}).get('cert_path', None)
 key_path = app_config_env.get('ssl', {}).get('key_path', None)
 
 ssl: Union[bool, SSLContext] = False
-if env in ('test', 'production'):
-    sslcontext = ssl_module.create_default_context()
-    sslcontext.load_cert_chain(cert_path, key_path)
-    ssl = sslcontext
+# if env in ('test', 'production'):
+#     sslcontext = ssl_module.create_default_context()
+#     sslcontext.load_cert_chain(cert_path, key_path)
+#     ssl = sslcontext
 
 # elasticsearch config
 base_es_url = app_config_env['elasticsearch']['url']

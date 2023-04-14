@@ -38,9 +38,28 @@ VALIDATOR_FIELD = 'validator'
 NULL_VALUES = ['#'] 
 
 class Source(Enum):
-    SAP_ANALYZER = {'alias': 'SAP Analyzer', 'index': 'st-sap-analyzer', '_id': 'Maintenance Order', VALIDATOR_FIELD: sap_analyzer_validator}
-    VAS = {'alias': 'VAS', 'index': 'st-vas', '_id': 'Údržbárska zákazka'}
-    SAP = {'alias': 'SAP', 'index': 'st-sap', '_id': 'Zákazka'}
+    SAP_ANALYZER = {
+        'alias': 'SAP Analyzer'
+        , 'index': 'st-sap-analyzer'
+        , '_id': 'Maintenance Order'
+        , 'search_field': 'Maintenance Order (Desc)'
+        , 'date_field': None
+        , VALIDATOR_FIELD: sap_analyzer_validator
+        }
+    VAS = {
+        'alias': 'VAS'
+        , 'index': 'st-vas'
+        , '_id': 'Údržbárska zákazka'
+        , 'search_field': 'Popis poruchy'
+        , 'date_field': 'Ukončenie VAS'
+        }
+    SAP = {
+        'alias': 'SAP'
+        , 'index': 'st-sap'
+        , '_id': 'Zákazka'
+        , 'search_field': 'Kr_text'
+        , 'date_field': 'Koniec poruchy'
+        }
 
 
 SOURCES_EXPECTED_COLUMNS = {
