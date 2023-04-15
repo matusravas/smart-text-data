@@ -2,7 +2,7 @@ import json
 import logging
 import aiohttp
 from typing import Union
-from app.model import ESData, BulkResult, File, DataIndexer
+from app.model import ESData, BulkResult, File
 from app.utils.decorators.es import use_multiple_es_hosts
 from .utils.helpers import parse_bulk_result
 
@@ -26,8 +26,8 @@ async def get_last_indexed_timestamp(es: ESData) -> Union[float, None]:
 
 
 @use_multiple_es_hosts
-async def post_last_indexed_timestamp(es: ESData, data_indexer: DataIndexer) -> bool:
-    body = data_indexer.serialize()
+async def post_bulk_result(es: ESData, bulk_result: BulkResult) -> bool:
+    body = bulk_result.serialize()
     url = f'{es.url}/st-data-indexer/_doc'
     async with aiohttp.ClientSession() as session:
         async with session.post(url, headers=es.headers, json=body, ssl=es.ssl) as resp:

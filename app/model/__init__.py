@@ -85,8 +85,11 @@ class BulkResultPartial():
 
 
 class BulkResult():
-    def __init__(self, file: File, result: EBulkResult, n_items: int,
-                 items: Optional[Iterator[BulkResultPartial]]=None) -> None:
+    def __init__(self, bulk_timestamp: float, bulk_hash: str, file: File
+                 , result: EBulkResult, n_items: int
+                 , items: Optional[Iterator[BulkResultPartial]]=None) -> None:
+        self.bulk_timestamp = bulk_timestamp
+        self.bulk_hash = bulk_hash
         self.file = file
         self.result = result
         self.n_items = n_items
@@ -100,7 +103,9 @@ class BulkResult():
         source = self.file.source.value
         source.pop(VALIDATOR_FIELD, None)
         obj = {
-            "file_name": self.file.name
+            "timestamp": self.bulk_timestamp
+            ,"bulk": self.bulk_hash
+            ,"file": self.file.name
             # ,"file_path": self.file.path
             ,"source": source
             ,"file_ctime": self.file.ctime
@@ -118,13 +123,13 @@ class BulkResult():
         return obj
         
 
-class DataIndexer():
-    def __init__(self, timestamp: float, results: List[BulkResult]) -> None:
-        self.timestamp = timestamp
-        self.results = results
+# class DataIndexer():
+#     def __init__(self, timestamp: float, results: List[BulkResult]) -> None:
+#         self.timestamp = timestamp
+#         self.results = results
         
-    def serialize(self):
-        return {
-            "timestamp": self.timestamp
-            ,"files": [q.serialize() for q in self.results]
-        }
+#     def serialize(self):
+#         return {
+#             "timestamp": self.timestamp
+#             ,"files": [q.serialize() for q in self.results]
+#         }

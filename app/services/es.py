@@ -4,14 +4,14 @@ import logging
 from datetime import datetime as dt
 from typing import Coroutine, List, Union
 
+import pandas as pd
+
 from app import ACTION, BULK_ACTION, TIMESTAMP
 from app.apis.es import (bulk, get_last_indexed_timestamp,
-                         post_last_indexed_timestamp)
-from app.model import (BulkResult, DataIndexer, EBulkResult, EDocResult,
-                       EventLoop, File)
+                         post_bulk_result)
+from app.apis.utils.helpers import normalize_row
+from app.model import BulkResult, EBulkResult, EDocResult, EventLoop
 from app.utils.decorators.services import service
-from app.utils.helpers import normalize_row
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -31,9 +31,10 @@ def __obtain_last_indexed_timestamp(loop: EventLoop) -> Union[float, None]:
 
 
 @service
-def __save_last_indexed_timestamp(loop: EventLoop, data_indexer: DataIndexer) -> bool:
-    status = loop.run_until_complete(post_last_indexed_timestamp(data_indexer))
-    return status
+def __save_bulk_results(loop: EventLoop, bulk_results: List[BulkResult]) -> bool:
+    tasks = asyncio.gather(*(post_bulk_result(bulk_result) for bulk_result in bulk_results))
+    statuses = loop.run_until_complete(tasks)
+    return all(statuses)
 
 
 @service
@@ -59,16 +60,16 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
     return results 
 
 
-def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
+def __check_results_and_post_last_timestamp(bulk_results: List[BulkResult]) -> bool:
     # results MUST be sorted by file creation times - ctimes "asc" oldest should be last
-    for result in results:
-        logger.info(f'File: {result.file.name}, result: {result.result.value}')
-        if result.result in [EBulkResult.INDEXED, EBulkResult.UNKNOWN] and result.items:
+    for bulk_result in bulk_results:
+        logger.info(f'File: {bulk_result.file.name}, result: {bulk_result.result.value}')
+        if bulk_result.result in [EBulkResult.INDEXED, EBulkResult.UNKNOWN] and bulk_result.items:
             insert_counter = 0
             update_counter = 0
             error_counter = 0
             conflict_counter = 0
-            for partial_result in result.items:
+            for partial_result in bulk_result.items:
                 if partial_result.result == EDocResult.DOC_INSERTED:
                     insert_counter += 1
                 if partial_result.result == EDocResult.DOC_UPDATED:
@@ -80,33 +81,34 @@ def __check_results_and_post_last_timestamp(results: List[BulkResult]) -> bool:
                 elif partial_result.result == EDocResult.DOC_ERROR: # no other option else could be used
                     error_counter += 1
                     logger.error(f'Indexing error on _id: {partial_result._id}')
-            result.n_inserted = insert_counter
-            result.n_updated = update_counter
-            result.n_errors = error_counter
+            bulk_result.n_inserted = insert_counter
+            bulk_result.n_updated = update_counter
+            bulk_result.n_errors = error_counter
             if ACTION == BULK_ACTION.CREATE:
-                result.n_conflicted = conflict_counter
+                bulk_result.n_conflicted = conflict_counter
         
-        elif result.result == EBulkResult.ERROR:
+        elif bulk_result.result == EBulkResult.ERROR:
             #? send info mail
-            logger.error(f'Error indexing whole file: {result.file.name}')
+            logger.error(f'Error indexing whole file: {bulk_result.file.name}')
         
         else:
-            result.result = EBulkResult.FATAL
-            logger.error(f'Unexpected processing error. File: {result.file.name}')
+            bulk_result.result = EBulkResult.FATAL
+            logger.error(f'Unexpected processing error. File: {bulk_result.file.name}')
     
-    data_indexer = DataIndexer(TIMESTAMP, results)
-    if not results: 
-        logger.info('No data to be indexed...')
-        logger.info(data_indexer.serialize())
+    # data_indexer = DataIndexer(TIMESTAMP, results)
+    if not bulk_results: 
+        logger.info('No bulk data to be indexed...')
+        # logger.info(data_indexer.serialize())
         return
     
-    logger.info('Output data prepared to be indexed...')
-    logger.info(data_indexer.serialize())
-    status = __save_last_indexed_timestamp(data_indexer)
+    logger.info('Bulk data prepared to be indexed...')
+    for bulk_result in bulk_results:
+        logger.info(bulk_result.serialize())
+    status = __save_bulk_results(bulk_results)
     if status:
-        logger.info('Output data indexed to elasticsearch')
+        logger.info('Bulk data indexed to elasticsearch')
     else:
-        logger.error('Output data not indexed to elasticsearch')
+        logger.error('Bulk data not indexed to elasticsearch')
         
     return status
 
