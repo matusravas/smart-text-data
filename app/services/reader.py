@@ -6,6 +6,7 @@ import pandas as pd
 
 from app import FILE_EXTENSIONS, WORK_DIR
 from app.model import VALIDATOR_FIELD, File, Source, SOURCES_EXPECTED_COLUMNS
+from app.apis.utils.helpers import generate_timestamp_hash
 
 
 logger = logging.getLogger(__name__)
@@ -61,6 +62,7 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
                 logger.warning(f'File {file.name}, could not be identified as valid source file.')
                 continue
             file.source = source
+            file.uid = generate_timestamp_hash()
             file.id_field = source.value.get('_id')
             file.row_validator = source.value.get(VALIDATOR_FIELD, None)
             data = iter(df.to_dict(orient='records', ))

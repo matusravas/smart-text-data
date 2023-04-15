@@ -1,10 +1,8 @@
 from asyncio import AbstractEventLoop, ProactorEventLoop
 from enum import Enum
 from ssl import SSLContext
-from typing import Dict, Iterator, List, Optional, Union, Callable
+from typing import Dict, Iterator, Optional, Union, Callable
 from .validators import sap_analyzer_validator
-
-
 EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
 
@@ -73,6 +71,7 @@ class File():
         self.path = path
         self.name = name
         self.ctime = ctime
+        self.uid: str = None # md5 encoded timestamp of file processed
         self.source: Source = None
         self.id_field: Union[None, str] = None
         self.row_validator: Union[None, Callable[[Dict], bool]] = None
@@ -106,6 +105,7 @@ class BulkResult():
             "timestamp": self.bulk_timestamp
             ,"bulk": self.bulk_hash
             ,"file": self.file.name
+            , "@uid": self.file.uid
             # ,"file_path": self.file.path
             ,"source": source
             ,"file_ctime": self.file.ctime

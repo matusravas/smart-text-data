@@ -33,7 +33,7 @@ def evaluate_every_bulk_result(items: List[Dict]) -> Iterator[BulkResultPartial]
             else BulkResultPartial(EDocResult.DOC_ERROR, _id)
             
 
-def normalize_row(row: Dict):
+def normalize_row(row: Dict, uid: str):
     normalized_row = {}
     for key, value in row.items():
         if value in NULL_VALUES or pd.isnull(value) or pd.isna(value):
@@ -41,7 +41,7 @@ def normalize_row(row: Dict):
         elif isinstance(value, pd.Timestamp) or isinstance(value, dt): 
             value = value.isoformat()  
         normalized_row[' '.join(key.strip().split())] = value
-    
+    normalized_row['@uid'] = uid
     return normalized_row
 
 
