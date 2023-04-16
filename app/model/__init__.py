@@ -71,7 +71,8 @@ class File():
         self.path = path
         self.name = name
         self.ctime = ctime
-        self.uid: str = None # md5 encoded timestamp of file processed
+        self.rtime: int = None # timestamp (seconds) of file processed
+        self.uid: str = None # sha256 encoded timestamp (milis) of file processed
         self.source: Source = None
         self.id_field: Union[None, str] = None
         self.row_validator: Union[None, Callable[[Dict], bool]] = None
@@ -109,6 +110,7 @@ class BulkResult():
             # ,"file_path": self.file.path
             ,"source": source
             ,"file_ctime": self.file.ctime
+            ,"file_rtime": self.file.rtime
             ,"result": self.result.value
             ,"n_items": self.n_items
         }

@@ -55,14 +55,16 @@ def get_df_with_source(file: File) -> Union[Tuple[pd.DataFrame, Source], Union[N
 def read_files() -> Generator[Tuple[Iterator, File], None, None]:
     files = scan_for_new_files()
     logger.info(f'Number of files to index: {len(files)}')
-    for file in files:
+    for i, file in enumerate(files):
         try:
             df, source = get_df_with_source(file)
             if source is None or source.value.get('_id') is None:
                 logger.warning(f'File {file.name}, could not be identified as valid source file.')
                 continue
             file.source = source
-            file.uid = generate_timestamp_hash()
+            timestamp = dt.now().timestamp()
+            file.rtime = int(timestamp) + i
+            file.uid = generate_timestamp_hash(timestamp)
             file.id_field = source.value.get('_id')
             file.row_validator = source.value.get(VALIDATOR_FIELD, None)
             data = iter(df.to_dict(orient='records', ))

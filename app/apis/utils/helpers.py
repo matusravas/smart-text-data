@@ -1,6 +1,6 @@
 import hashlib
 from datetime import datetime as dt
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List, Optional, Union
 
 import pandas as pd
 
@@ -45,10 +45,10 @@ def normalize_row(row: Dict, uid: str):
     return normalized_row
 
 
-def generate_timestamp_hash(timestamp: Optional[float]=None):
+def generate_timestamp_hash(timestamp: Optional[Union[int, float]]=None):
     timestamp_str = str(timestamp if timestamp else dt.now().timestamp())
     timestamp_bytes = timestamp_str.encode('utf-8')
-    hash_object = hashlib.md5()
+    hash_object = hashlib.sha256()
     hash_object.update(timestamp_bytes)
-    hash_hex = hash_object.hexdigest()
+    hash_hex = hash_object.hexdigest()[:20]
     return hash_hex
