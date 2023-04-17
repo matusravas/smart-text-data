@@ -6,7 +6,7 @@ from typing import Coroutine, List, Union
 
 import pandas as pd
 
-from app import ACTION, BULK_ACTION, TIMESTAMP
+from app import ACTION, BULK_ACTION
 from app.apis.es import (bulk, get_last_indexed_timestamp,
                          post_bulk_result)
 from app.apis.utils.helpers import normalize_row
@@ -63,8 +63,8 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
 def __check_results_and_post_last_timestamp(bulk_results: List[BulkResult]) -> bool:
     # results MUST be sorted by file creation times - ctimes "asc" oldest should be last
     for bulk_result in bulk_results:
-        logger.info(f'File: {bulk_result.file.name}, result: {bulk_result.result.value}')
-        if bulk_result.result in [EBulkResult.INDEXED, EBulkResult.UNKNOWN] and bulk_result.items:
+        logger.info(f'File: {bulk_result.file.name}, result: {bulk_result.status.value}')
+        if bulk_result.status in [EBulkResult.INDEXED, EBulkResult.UNKNOWN] and bulk_result.items:
             insert_counter = 0
             update_counter = 0
             error_counter = 0
@@ -87,12 +87,12 @@ def __check_results_and_post_last_timestamp(bulk_results: List[BulkResult]) -> b
             if ACTION == BULK_ACTION.CREATE:
                 bulk_result.n_conflicted = conflict_counter
         
-        elif bulk_result.result == EBulkResult.ERROR:
+        elif bulk_result.status == EBulkResult.ERROR:
             #? send info mail
             logger.error(f'Error indexing whole file: {bulk_result.file.name}')
         
         else:
-            bulk_result.result = EBulkResult.FATAL
+            bulk_result.status = EBulkResult.FATAL
             logger.error(f'Unexpected processing error. File: {bulk_result.file.name}')
     
     # data_indexer = DataIndexer(TIMESTAMP, results)

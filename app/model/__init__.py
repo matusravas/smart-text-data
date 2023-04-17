@@ -91,7 +91,7 @@ class BulkResult():
         self.bulk_timestamp = bulk_timestamp
         self.bulk_hash = bulk_hash
         self.file = file
-        self.result = result
+        self.status = result
         self.n_items = n_items
         self.items = items
         self.n_inserted = None
@@ -103,25 +103,27 @@ class BulkResult():
         source = self.file.source.value
         source.pop(VALIDATOR_FIELD, None)
         obj = {
-            "timestamp": self.bulk_timestamp
-            ,"bulk": self.bulk_hash
+            "bulk": self.bulk_hash
+            ,"bulk-timestamp": self.bulk_timestamp
             ,"file": self.file.name
             , "@uid": self.file.uid
             # ,"file_path": self.file.path
             ,"source": source
-            ,"file_ctime": self.file.ctime
-            ,"file_rtime": self.file.rtime
-            ,"result": self.result.value
-            ,"n_items": self.n_items
+            ,"ctime": self.file.ctime
+            ,"rtime": self.file.rtime
+            ,"result": {
+                "status": self.status.value
+                ,"n_items": self.n_items
+            }
         }
         if self.n_inserted is not None:
-            obj["inserts"] = self.n_inserted
+            obj["result"]["inserts"] = self.n_inserted
         if self.n_updated is not None:
-            obj["updates"] = self.n_updated
+            obj["result"]["updates"] = self.n_updated
         if self.n_conflicted is not None:
-            obj["conflicts"] = self.n_conflicted
+            obj["result"]["conflicts"] = self.n_conflicted
         if self.n_errors is not None:
-            obj["errors"] = self.n_errors
+            obj["result"]["errors"] = self.n_errors
         return obj
         
 
