@@ -46,7 +46,7 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
         logger.info(dt.fromtimestamp(file.ctime).isoformat())
         rows = []
         for i, row in enumerate(data, start=1):
-            _id = row.get(file.id_field, i)
+            _id = '{}-{}'.format(row.get(file.id_field, i), file.rtime)
             if file.row_validator is not None and not file.row_validator(row): continue
             if pd.isna(_id): continue
             rows.append(json.dumps({ACTION.value: {'_id': _id}})) # use index instead of create to update existing docs

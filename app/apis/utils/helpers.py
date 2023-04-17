@@ -15,7 +15,7 @@ def parse_bulk_result(data: Dict, file: File, n_items: int) -> BulkResult:
     else:
         result = EBulkResult.ERROR if not ('items' in data and data['items'] and isinstance(data['items'], list))\
             else EBulkResult.UNKNOWN
-    bulk_hash = generate_timestamp_hash(TIMESTAMP)
+    bulk_hash = generate_timestamp_hash(int(TIMESTAMP))
     return BulkResult(TIMESTAMP, bulk_hash, file, result, n_items, items=evaluate_every_bulk_result(data['items']))
 
 

@@ -62,8 +62,9 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
                 logger.warning(f'File {file.name}, could not be identified as valid source file.')
                 continue
             file.source = source
-            timestamp = dt.now().timestamp()
-            file.rtime = int(timestamp) + i
+            #! +i because if file read very fast, so timestamps would be same, so adding + i = + 1 second between files
+            timestamp = int(dt.now().timestamp()) + i
+            file.rtime = timestamp
             file.uid = generate_timestamp_hash(timestamp)
             file.id_field = source.value.get('_id')
             file.row_validator = source.value.get(VALIDATOR_FIELD, None)
