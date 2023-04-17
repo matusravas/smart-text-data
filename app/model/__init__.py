@@ -70,7 +70,7 @@ class File():
     def __init__(self, path: str, name: str, ctime: float) -> None:
         self.path = path
         self.name = name
-        self.ctime = ctime
+        self.ctime = int(ctime)
         self.rtime: int = None # timestamp (seconds) of file processed
         self.uid: str = None # sha256 encoded timestamp (milis) of file processed
         self.source: Source = None
@@ -88,7 +88,7 @@ class BulkResult():
     def __init__(self, bulk_timestamp: float, bulk_hash: str, file: File
                  , result: EBulkResult, n_items: int
                  , items: Optional[Iterator[BulkResultPartial]]=None) -> None:
-        self.bulk_timestamp = bulk_timestamp
+        self.bulk_timestamp = int(bulk_timestamp)
         self.bulk_hash = bulk_hash
         self.file = file
         self.status = result

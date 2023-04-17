@@ -15,7 +15,7 @@ def parse_bulk_result(data: Dict, file: File, n_items: int) -> BulkResult:
     else:
         result = EBulkResult.ERROR if not ('items' in data and data['items'] and isinstance(data['items'], list))\
             else EBulkResult.UNKNOWN
-    bulk_hash = generate_timestamp_hash(int(TIMESTAMP))
+    bulk_hash = generate_timestamp_hash(TIMESTAMP)
     return BulkResult(TIMESTAMP, bulk_hash, file, result, n_items, items=evaluate_every_bulk_result(data['items']))
 
 
@@ -46,7 +46,7 @@ def normalize_row(row: Dict, uid: str):
 
 
 def generate_timestamp_hash(timestamp: Optional[Union[int, float]]=None):
-    timestamp_str = str(timestamp if timestamp else dt.now().timestamp())
+    timestamp_str = str(int(timestamp if timestamp else dt.now().timestamp()))
     timestamp_bytes = timestamp_str.encode('utf-8')
     hash_object = hashlib.sha256()
     hash_object.update(timestamp_bytes)
