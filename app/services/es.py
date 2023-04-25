@@ -46,10 +46,11 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
         logger.info(dt.fromtimestamp(file.ctime).isoformat())
         rows = []
         for i, row in enumerate(data, start=1):
-            _id = '{}-{}'.format(row.get(file.id_field, i), file.rtime)
+            _id = row.get(file.id_field, None)
+            if not _id or pd.isna(_id): continue
+            id_with_timestamp = '{}-{}'.format(_id, file.rtime)
             if file.row_validator is not None and not file.row_validator(row): continue
-            if pd.isna(_id): continue
-            rows.append(json.dumps({ACTION.value: {'_id': _id}})) # use index instead of create to update existing docs
+            rows.append(json.dumps({ACTION.value: {'_id': id_with_timestamp}})) # use index instead of create to update existing docs
             normalized_row = normalize_row(row, file.uid)
             rows.append(json.dumps(normalized_row, ensure_ascii=False))
         bulk_data = '\n'.join(rows) + '\n'
