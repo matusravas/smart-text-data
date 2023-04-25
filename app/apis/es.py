@@ -22,7 +22,7 @@ async def get_last_indexed_timestamp(es: ESData) -> Union[float, None]:
     
     if not (data and 'hits' in data and 'hits' in data['hits'] and data['hits']['hits'] and len(data['hits']['hits']) > 0):
         return None
-    return data['hits']['hits'][0]['_source'].get('timestamp', None)
+    return data['hits']['hits'][0]['_source'].get('bulk-timestamp', None)
 
 
 @use_multiple_es_hosts

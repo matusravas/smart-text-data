@@ -1,5 +1,5 @@
 {
-    "_source": ["timestamp"],
+    "_source": ["bulk-timestamp"],
     "size": 1,
-    "sort": {"timestamp": "desc"}
+    "sort": {"bulk-timestamp": "desc"}
 }
