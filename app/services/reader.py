@@ -20,10 +20,10 @@ def scan_for_new_files() -> List[File] :
         if not file_name.endswith(FILE_EXTENSIONS) or file_name.startswith('~$'): continue
         
         file_path = os.path.join(WORK_DIR, file_name)
-        file_ctime = os.path.getctime(file_path)
-        file_mtime = os.path.getmtime(file_path)
+        file_ctime = int(os.path.getctime(file_path))
+        file_mtime = int(os.path.getmtime(file_path))
         
-        if timestamp and file_ctime < timestamp and file_mtime < timestamp: continue
+        if timestamp and (file_ctime < timestamp and file_mtime < timestamp): continue
         
         file = File(file_path, file_name, file_ctime)
         files.append(file)
