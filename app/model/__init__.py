@@ -1,8 +1,8 @@
 from asyncio import AbstractEventLoop, ProactorEventLoop
 from enum import Enum
 from ssl import SSLContext
-from typing import Dict, Iterator, Optional, Union, Callable
-from .validators import sap_analyzer_validator
+from typing import Dict, Iterator, Optional, Union, Callable, Any
+from .utils import sap_analyzer_validator, vas_normalizer
 EventLoop = Union[AbstractEventLoop, ProactorEventLoop]
 
 
@@ -33,6 +33,7 @@ class ESData():
 
 
 VALIDATOR_FIELD = 'validator'
+NORMALIZER_FIELD = 'normalizer'
 NULL_VALUES = ['#'] 
 
 class Source(Enum):
@@ -50,6 +51,7 @@ class Source(Enum):
         , '_id': 'Údržbárska zákazka'
         , 'search_field': 'Popis poruchy'
         , 'date_field': 'Ukončenie VAS'
+        , NORMALIZER_FIELD: vas_normalizer
         }
     SAP = {
         'alias': 'SAP'
@@ -76,6 +78,7 @@ class File():
         self.source: Source = None
         self.id_field: Union[None, str] = None
         self.row_validator: Union[None, Callable[[Dict], bool]] = None
+        self.normalizer: Union[None, Callable[[str, Any], Dict]] = None
 
 
 class BulkResultPartial():
@@ -102,6 +105,7 @@ class BulkResult():
     def serialize(self):
         source = self.file.source.value
         source.pop(VALIDATOR_FIELD, None)
+        source.pop(NORMALIZER_FIELD, None)
         obj = {
             "bulk": self.bulk_hash
             ,"bulk-timestamp": self.bulk_timestamp

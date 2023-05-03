@@ -5,7 +5,7 @@ from datetime import datetime as dt
 import pandas as pd
 
 from app import FILE_EXTENSIONS, WORK_DIR
-from app.model import VALIDATOR_FIELD, File, Source, SOURCES_EXPECTED_COLUMNS
+from app.model import VALIDATOR_FIELD, NORMALIZER_FIELD, File, Source, SOURCES_EXPECTED_COLUMNS
 from app.apis.utils.helpers import generate_timestamp_hash
 
 
@@ -68,6 +68,7 @@ def read_files() -> Generator[Tuple[Iterator, File], None, None]:
             file.uid = generate_timestamp_hash(timestamp)
             file.id_field = source.value.get('_id')
             file.row_validator = source.value.get(VALIDATOR_FIELD, None)
+            file.normalizer = source.value.get(NORMALIZER_FIELD, None)
             data = iter(df.to_dict(orient='records', ))
             yield (data, file)
         except Exception as e:

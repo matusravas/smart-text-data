@@ -51,7 +51,7 @@ def __bulk_files_to_es(loop: EventLoop) -> List[BulkResult]:
             id_with_timestamp = '{}-{}'.format(_id, file.rtime)
             if file.row_validator is not None and not file.row_validator(row): continue
             rows.append(json.dumps({ACTION.value: {'_id': id_with_timestamp}})) # use index instead of create to update existing docs
-            normalized_row = normalize_row(row, file.uid)
+            normalized_row = normalize_row(row, file)
             rows.append(json.dumps(normalized_row, ensure_ascii=False))
         bulk_data = '\n'.join(rows) + '\n'
         coroutines.append(bulk(bulk_data, file, i))
