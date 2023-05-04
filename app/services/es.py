@@ -75,13 +75,13 @@ def __check_results_and_post_last_timestamp(bulk_results: List[BulkResult]) -> b
                     insert_counter += 1
                 if partial_result.result == EDocResult.DOC_UPDATED:
                     update_counter += 1
-                    logger.warning(f'Indexing update on _id: {partial_result._id}')
+                    # logger.warning(f'Indexing update on _id: {partial_result._id}')
                 if partial_result.result == EDocResult.DOC_CONFLICT:
                     conflict_counter += 1
-                    logger.warning(f'Indexing integrity_conflict on _id: {partial_result._id}')
+                    # logger.warning(f'Indexing integrity_conflict on _id: {partial_result._id}')
                 elif partial_result.result == EDocResult.DOC_ERROR: # no other option else could be used
                     error_counter += 1
-                    logger.error(f'Indexing error on _id: {partial_result._id}')
+                    # logger.error(f'Indexing error on _id: {partial_result._id}')
             bulk_result.n_inserted = insert_counter
             bulk_result.n_updated = update_counter
             bulk_result.n_errors = error_counter
