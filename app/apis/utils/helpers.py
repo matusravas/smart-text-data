@@ -1,6 +1,7 @@
 import hashlib
+import logging
 from datetime import datetime as dt
-from typing import Dict, Iterator, List, Optional, Union
+from typing import Dict, Iterator, List, Optional, Union, Any
 
 import pandas as pd
 
@@ -8,8 +9,18 @@ from app import ACTION, TIMESTAMP
 from app.model import (NULL_VALUES, BulkResult, BulkResultPartial, EBulkResult,
                        EDocResult, File)
 
+logger = logging.getLogger(__name__)
+
 
 def parse_bulk_result(data: Dict, file: File, n_items: int) -> BulkResult:
+    if 'errors' in data and data['errors'] and 'items' in data and len(data['items']):
+        error_counter = 0
+        for item in data['items']:
+            if 'index' in item and item['index'] and 'error' in item['index']: 
+                error_counter += 1
+                logger.error(item)
+            if error_counter >= 5: break
+    
     if data and (('errors' in data and not data['errors']) and 'items' in data and len(data['items']) == n_items):
         result = EBulkResult.INDEXED #EBulkResult.INDEXED_UPDATE if ACTION == BULK_ACTION.INDEX else EBulkResult.INDEXED
     else:

@@ -11,7 +11,10 @@ def sap_analyzer_validator(row: Dict):
 def vas_normalizer(field_name: str, field_value: Any):
     DATE_FIELDS = ['Time', 'Prebratie SAP', 'Prebratie terminál'
                    , 'Uzatvorenie SAP', 'Ukoncenie VAS', ]
+    # FORCE_STRING_FIELDS = ['Year-month', 'Year-quarter', 'Year-week']
     try:
+        # if field_name in FORCE_STRING_FIELDS:
+        #     return str(field_value)
         if field_name in DATE_FIELDS and \
             (isinstance(field_value, float) or isinstance(field_name, int)): 
                 days = int(field_value)
@@ -22,4 +25,4 @@ def vas_normalizer(field_name: str, field_value: Any):
                 return date_str
         else: return field_value
     except:
-        return field_name
+        return None
